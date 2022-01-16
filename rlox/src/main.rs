@@ -1,23 +1,61 @@
 use std::env;
 use std::fs;
+use std::process;
 use std::io::Write;
 use std::io::{stdin, stdout};
 
 use regex::Regex;
 
+struct Lox {
+    hadError: bool
+}
+
+trait LoxInterpreter {
+    fn run(&mut self, content: &String);
+    fn error(&mut self, line: u8, message: &String);
+    fn report(&mut self, line: u8, where_at: &String, message: &String);
+}
+
+impl LoxInterpreter for Lox {
+    fn run(&mut self, content: &String) {
+        println!("Tokens:");
+        let tokens: Vec<&str> = content.split(" ").collect();
+        for token in tokens {
+            println!("\t- {token}");
+        }
+    }
+
+    fn report(&mut self, line: u8, where_at: &String, message: &String){
+        eprintln!("[line {line}] Error{where_at}: {message}");
+        self.hadError = true;
+    }
+
+    fn error(&mut self, line: u8, message: &String) {
+        self.report(line, &"".to_owned(), message);
+    }
+
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let length = args.len();
     if length > 2 {
-        println!("Usage: rlox [script]")
-    } else if length == 2 {
-        run_file(&args[1]);
+        println!("Usage: rlox [script]");
+        process::exit(0x0100)
+    } 
+
+    let mut lox = Lox {
+        hadError: false
+    };
+    
+    if length == 2 {
+        run_file(&args[1], &mut lox);
     } else {
-        run_prompt();
+        run_prompt(&mut lox);
     }
 }
 
-fn run_file(path: &String){
+fn run_file(path: &String, lox_instance: &mut Lox){
     println!("Running file \"{path}\"");
     let content_string = fs::read_to_string(path);
     let content_string = match content_string {
@@ -25,10 +63,10 @@ fn run_file(path: &String){
         Err(error) => panic!("Problem opening the file: {:?}", error)
     };
 
-    run(&content_string);
+    lox_instance.run(&content_string);
 }
 
-fn run_prompt() {
+fn run_prompt(lox_instance: &mut Lox) {
 
     let re = Regex::new(r"\s+").unwrap();
 
@@ -48,14 +86,6 @@ fn run_prompt() {
 
         let string = &s.trim().to_string();
         let result = re.replace_all(string, " ");
-        run(&result.to_string());
-    }
-}
-
-fn run(content: &String){
-    println!("Tokens:");
-    let tokens: Vec<&str> = content.split(" ").collect();
-    for token in tokens {
-        println!("\t- {token}");
+        lox_instance.run(&result.to_string());
     }
 }
