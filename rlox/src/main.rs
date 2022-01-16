@@ -7,7 +7,7 @@ use std::io::{stdin, stdout};
 use regex::Regex;
 
 struct Lox {
-    hadError: bool
+    had_error: bool
 }
 
 trait LoxInterpreter {
@@ -27,7 +27,7 @@ impl LoxInterpreter for Lox {
 
     fn report(&mut self, line: u8, where_at: &String, message: &String){
         eprintln!("[line {line}] Error{where_at}: {message}");
-        self.hadError = true;
+        self.had_error = true;
     }
 
     fn error(&mut self, line: u8, message: &String) {
@@ -45,7 +45,7 @@ fn main() {
     } 
 
     let mut lox = Lox {
-        hadError: false
+        had_error: false
     };
     
     if length == 2 {
