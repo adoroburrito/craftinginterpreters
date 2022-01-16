@@ -41,7 +41,7 @@ fn main() {
     let length = args.len();
     if length > 2 {
         println!("Usage: rlox [script]");
-        process::exit(0x0100)
+        process::exit(64);
     } 
 
     let mut lox = Lox {
@@ -64,6 +64,10 @@ fn run_file(path: &String, lox_instance: &mut Lox){
     };
 
     lox_instance.run(&content_string);
+
+    if lox_instance.had_error {
+        process::exit(65);
+    }
 }
 
 fn run_prompt(lox_instance: &mut Lox) {
@@ -87,5 +91,6 @@ fn run_prompt(lox_instance: &mut Lox) {
         let string = &s.trim().to_string();
         let result = re.replace_all(string, " ");
         lox_instance.run(&result.to_string());
+        lox_instance.had_error = false;
     }
 }
