@@ -3,6 +3,7 @@ use std::fs;
 use std::process;
 use std::io::Write;
 use std::io::{stdin, stdout};
+mod scanner;
 
 use regex::Regex;
 
@@ -19,7 +20,9 @@ trait LoxInterpreter {
 impl LoxInterpreter for Lox {
     fn run(&mut self, content: &String) {
         println!("Tokens:");
-        let tokens: Vec<&str> = content.split(" ").collect();
+        let scanner_instance = scanner::create_scanner(&self);
+        let tokens: Vec<&str> = scanner_instance.scan_tokens(&content);
+
         for token in tokens {
             println!("\t- {token}");
         }
