@@ -3,41 +3,12 @@ use std::fs;
 use std::process;
 use std::io::Write;
 use std::io::{stdin, stdout};
-mod scanner;
-
 use regex::Regex;
 
-struct Lox {
-    had_error: bool
-}
+mod scanner;
+mod lox;
 
-trait LoxInterpreter {
-    fn run(&mut self, content: &String);
-    fn error(&mut self, line: u8, message: &String);
-    fn report(&mut self, line: u8, where_at: &String, message: &String);
-}
-
-impl LoxInterpreter for Lox {
-    fn run(&mut self, content: &String) {
-        println!("Tokens:");
-        let scanner_instance = scanner::create_scanner(&self);
-        let tokens: Vec<&str> = scanner_instance.scan_tokens(&content);
-
-        for token in tokens {
-            println!("\t- {token}");
-        }
-    }
-
-    fn report(&mut self, line: u8, where_at: &String, message: &String){
-        eprintln!("[line {line}] Error{where_at}: {message}");
-        self.had_error = true;
-    }
-
-    fn error(&mut self, line: u8, message: &String) {
-        self.report(line, &"".to_owned(), message);
-    }
-
-}
+use crate::lox::LoxInterpreter;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -47,18 +18,18 @@ fn main() {
         process::exit(64);
     } 
 
-    let mut lox = Lox {
+    let mut lox_instance = lox::Lox {
         had_error: false
     };
     
     if length == 2 {
-        run_file(&args[1], &mut lox);
+        run_file(&args[1], &mut lox_instance);
     } else {
-        run_prompt(&mut lox);
+        run_prompt(&mut lox_instance);
     }
 }
 
-fn run_file(path: &String, lox_instance: &mut Lox){
+fn run_file(path: &String, lox_instance: &mut lox::Lox){
     println!("Running file \"{path}\"");
     let content_string = fs::read_to_string(path);
     let content_string = match content_string {
@@ -73,7 +44,7 @@ fn run_file(path: &String, lox_instance: &mut Lox){
     }
 }
 
-fn run_prompt(lox_instance: &mut Lox) {
+fn run_prompt(lox_instance: &mut lox::Lox) {
 
     let re = Regex::new(r"\s+").unwrap();
 
