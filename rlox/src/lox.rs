@@ -1,8 +1,8 @@
-use crate::scanner::{create_scanner, ScannerActions};
 use crate::scanner::token::TokenTrait;
+use crate::scanner::{create_scanner, ScannerActions};
 
 pub struct Lox {
-    pub had_error: bool
+    pub had_error: bool,
 }
 
 pub trait LoxInterpreter {
@@ -23,7 +23,7 @@ impl LoxInterpreter for Lox {
         }
     }
 
-    fn report(&mut self, line: u8, where_at: &String, message: &String){
+    fn report(&mut self, line: u8, where_at: &String, message: &String) {
         eprintln!("[line {line}] Error{where_at}: {message}");
         self.had_error = true;
     }
@@ -31,5 +31,4 @@ impl LoxInterpreter for Lox {
     fn error(&mut self, line: u8, message: &String) {
         self.report(line, &"".to_owned(), message);
     }
-
 }

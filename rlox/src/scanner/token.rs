@@ -4,7 +4,7 @@ pub struct Token {
     pub tokentype: TokenType,
     pub lexeme: String,
     pub literal: String,
-    pub line: u8
+    pub line: u8,
 }
 
 pub trait TokenTrait {
@@ -17,6 +17,9 @@ impl TokenTrait for Token {
         let lexeme = &self.lexeme;
         let literal = &self.literal;
 
-        format!("Token type: \"{:#?}\" // Token Lexeme: \"{lexeme}\" // Token Literal: \"{literal}\"", tokentype)
+        format!(
+            "Token type: \"{:#?}\" // Token Lexeme: \"{lexeme}\" // Token Literal: \"{literal}\"",
+            tokentype
+        )
     }
 }
