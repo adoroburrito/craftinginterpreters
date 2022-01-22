@@ -2,7 +2,7 @@
 
 This is the repo for my exercises/follow-through of the book "Crafting Interpreters", a book about compilers. Please also keep in mind that I'm also using this book to get more hands on experience with Rust, so my code might not be very good yet.
 
-In order to use the code, clone this repository, make sure you have rust and cargo installed and run:
+In order to use the code, clone this repository, make sure you have rust and cargo installed, `cd` into the folder of which interpreter/compiler you want to use and run:
 
 ```
 cargo run
