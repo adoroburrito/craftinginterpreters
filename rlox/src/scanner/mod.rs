@@ -119,13 +119,13 @@ impl ScannerActions for Scanner<'_> {
         self.advance();
 
         // Trim the surrounding quotes
-        let value: String = self
+        let literal: String = self
             .source
             .chars()
             .skip((self.start + 1).into())
-            .take(((self.current - self.start) - 1).into())
+            .take(((self.current - self.start) - 2).into())
             .collect();
-        self.add_token_with_literal(TokenType::StringText, value);
+        self.add_token_with_literal(TokenType::StringText, literal);
     }
 
     fn match_next(&mut self, expected: char) -> bool {
@@ -154,12 +154,14 @@ impl ScannerActions for Scanner<'_> {
     }
 
     fn advance(&mut self) -> char {
-        self.current += 1;
-
-        match self.source.chars().nth(self.current.into()) {
+        let to_return = match self.source.chars().nth(self.current.into()) {
             Some(value) => value,
             None => ' ',
-        }
+        };
+
+        self.current += 1;
+
+        to_return
     }
 
     fn add_token(&mut self, tokentype: TokenType) {
