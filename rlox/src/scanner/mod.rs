@@ -11,34 +11,37 @@ pub struct Scanner<'a> {
     start: u8,
     current: u8,
     line: u8,
-    lox_instance: &'a Lox
+    lox_instance: &'a mut Lox
 }
 
 pub trait ScannerActions {
-    fn scan_tokens(&mut self) -> Vec<Token>;
+    fn scan_tokens(&mut self) -> &Vec<Token>;
     fn is_at_end(&self) -> bool;
     fn scan_token(&mut self);
-    fn advance(&self) -> char;
-    fn add_token(&mut self, token: TokenType);
+    fn advance(&mut self) -> char;
+    fn add_token(&mut self, tokentype: TokenType);
+    fn add_token_with_literal(&mut self, tokentype: TokenType, literal: String);
     fn match_next(&mut self, expected: char) -> bool;
     fn peek(&self) -> char;
 }
 
 impl ScannerActions for Scanner<'_> {
-    fn scan_tokens(&mut self) -> Vec<Token> {
-        while !&self.is_at_end() {
+    fn scan_tokens(&mut self) -> &Vec<Token> {
+        while !self.is_at_end() {
             self.start = self.current;
             self.scan_token();
         }
 
-        self.tokens.push(Token {
+        let new_token = Token {
             tokentype: TokenType::Eof,
             lexeme: "".to_string(),
-            literal: (),
+            literal: "".to_string(),
             line: self.line
-        });
+        };
 
-        self.tokens
+        self.tokens.push(new_token);
+
+        &self.tokens
     }
 
     fn is_at_end(&self) -> bool {
@@ -47,6 +50,7 @@ impl ScannerActions for Scanner<'_> {
 
     fn scan_token(&mut self) {
         let c: char = self.advance();
+        let match_equals: bool = self.match_next('=');
         match c {
             '(' => self.add_token(TokenType::LeftParen),
             ')' => self.add_token(TokenType::RightParen),
@@ -58,10 +62,10 @@ impl ScannerActions for Scanner<'_> {
             '+' => self.add_token(TokenType::Plus),
             ';' => self.add_token(TokenType::Semicolon),
             '*' => self.add_token(TokenType::Star),
-            '!' => self.add_token(if self.match_next('=') { TokenType::BangEqual } else { TokenType::Bang }),
-            '=' => self.add_token(if self.match_next('=') { TokenType::EqualEqual } else { TokenType::Equal }),
-            '<' => self.add_token(if self.match_next('=') { TokenType::LessEqual } else { TokenType::Less }),
-            '>' => self.add_token(if self.match_next('=') { TokenType::GreaterEqual } else { TokenType::Greater }),
+            '!' => self.add_token(if match_equals { TokenType::BangEqual } else { TokenType::Bang }),
+            '=' => self.add_token(if match_equals { TokenType::EqualEqual } else { TokenType::Equal }),
+            '<' => self.add_token(if match_equals { TokenType::LessEqual } else { TokenType::Less }),
+            '>' => self.add_token(if match_equals { TokenType::GreaterEqual } else { TokenType::Greater }),
             '/' => {
                 if self.match_next('/') {
                     while self.peek() != '\n' && !self.is_at_end() {
@@ -83,10 +87,10 @@ impl ScannerActions for Scanner<'_> {
             return false
         }
 
-        let source_chars = self.source.chars();
-        let current_char = source_chars.nth(self.current.into()).unwrap();
+        let mut source_chars = self.source.chars();
+        let current_char = &source_chars.nth(self.current.into()).unwrap();
 
-        if current_char != expected {
+        if current_char != &expected {
             return false
         }
 
@@ -102,9 +106,39 @@ impl ScannerActions for Scanner<'_> {
 
         return self.source.chars().nth(self.current.into()).unwrap();
     }
+
+    fn advance(&mut self) -> char {
+        self.current += 1;
+
+        match self.source.chars().nth(self.current.into()) {
+            Some(value) => value,
+            None => ' ',
+        }
+    }
+
+    fn add_token(&mut self, tokentype: TokenType) {
+        let text = self.source.chars().skip(self.start.into()).take((self.current - self.start).into()).collect();
+        self.tokens.push(Token {
+            tokentype,
+            lexeme: text,
+            literal: String::from(""),
+            line: self.line
+        });
+    }
+
+    fn add_token_with_literal(&mut self, tokentype: TokenType, literal: String) {
+        let text = self.source.chars().skip(self.start.into()).take((self.current - self.start).into()).collect();
+        self.tokens.push(Token {
+            tokentype,
+            lexeme: text,
+            literal,
+            line: self.line
+        });
+       
+    }
 }
 
-pub fn create_scanner(lox_instance: &Lox, content: String) -> Scanner {
+pub fn create_scanner(lox_instance: &mut Lox, content: String) -> Scanner {
     Scanner {
         source: content,
         tokens: Vec::new(),

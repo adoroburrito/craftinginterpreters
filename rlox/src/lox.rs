@@ -1,5 +1,5 @@
 use crate::scanner::{create_scanner, ScannerActions};
-use crate::scanner::token::{Token, TokenTrait};
+use crate::scanner::token::TokenTrait;
 
 pub struct Lox {
     pub had_error: bool
@@ -14,8 +14,8 @@ pub trait LoxInterpreter {
 impl LoxInterpreter for Lox {
     fn run(&mut self, content: &String) {
         println!("Tokens:");
-        let scanner_instance = create_scanner(&self, content.to_string());
-        let tokens: Vec<Token> = scanner_instance.scan_tokens();
+        let mut scanner_instance = create_scanner(self, content.to_string());
+        let tokens = scanner_instance.scan_tokens();
 
         for token in tokens {
             let token_string = token.get_string();
