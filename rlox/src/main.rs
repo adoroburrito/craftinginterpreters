@@ -27,7 +27,7 @@ fn main() {
     }
 }
 
-fn run_file(path: &String, lox_instance: &mut lox::Lox) {
+fn run_file(path: &str, lox_instance: &mut lox::Lox) {
     println!("Running file \"{path}\"");
     let content_string = fs::read_to_string(path);
     let content_string = match content_string {

@@ -226,7 +226,7 @@ impl ScannerActions for Scanner<'_> {
     }
 
     fn is_alpha(&self, c: char) -> bool {
-        (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'
+        ('a'..='z').contains(&c) || ('A'..='Z').contains(&c) || c == '_'
     }
 
     fn is_alpha_numeric(&self, c: char) -> bool {
@@ -234,14 +234,11 @@ impl ScannerActions for Scanner<'_> {
     }
 
     fn is_digit(&self, c: char) -> bool {
-        return c >= '0' && c <= '9';
+        ('0'..='9').contains(&c)
     }
 
     fn advance(&mut self) -> char {
-        let to_return = match self.source.chars().nth(self.current.into()) {
-            Some(value) => value,
-            None => ' ',
-        };
+        let to_return = self.source.chars().nth(self.current.into()).unwrap_or(' ');
 
         self.current += 1;
 
